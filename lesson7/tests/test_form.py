@@ -28,8 +28,8 @@ def test_form_submission(driver):
         "company": "SkyPro"
     }
     
-    form_page.fill_form_fields(form_data)
-    form_page.click_submit()
+    form_page.fill_form(form_data)
+    form_page.submit()
 
     for field_name in form_data.keys():
         form_page.validate_field_success(field_name)
