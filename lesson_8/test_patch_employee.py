@@ -1,37 +1,25 @@
 import requests
-import pytest
+from test_auth import get_token
+from test_post_employee import create_employee
+from test_create_company import create_company
 
 BASE_URL = "https://x-clients-be.onrender.com"
+EMPLOYEE_ENDPOINT = "/employee"
+TOKEN = get_token("leyla", "water-fairy")
+HEADERS = {"x-client-token": TOKEN, "Content-Type": "application/json", "accept": "application/json"}
 
-@pytest.fixture
-def auth_token():
-    url = f"{BASE_URL}/auth/login"
-    credentials = {
-        "username": "raphael",
-        "password": "cool-but-crude"
-    }
-    response = requests.post(url, json=credentials)
-    assert response.status_code == 201
-    return response.json()['userToken']
-
-@pytest.fixture
-def employee_id():
-    # Убедитесь, что у вас есть ID сотрудника для этого теста
-    return 1  # Замените на действительный ID сотрудника
-
-def test_patch_employee(auth_token, employee_id):
-    headers = {
-        "Authorization": f"Bearer {auth_token}",
-        "Content-Type": "application/json"
-    }
-    patch_data = {
-        "lastName": "Doe",
-        "email": "new.email@example.com",
-        "url": "http://newexample.com",
-        "phone": "0987654321",
+def test_patch_employee():
+    company_id = create_company()
+    employee_id = create_employee(company_id)
+    
+    update_data = {
+        "lastName": "NewLastName",
+        "email": "newemail@example.com",
+        "url": "http://newurl.com",
+        "phone": "+1234567890",
         "isActive": True
     }
-    response = requests.patch(f"{BASE_URL}/employee/{employee_id}", headers=headers, json=patch_data)
-    print(response.status_code)
-    print(response.text)  # Вывод для отладки
-    assert response.status_code == 201
+    response = requests.patch(f"{BASE_URL}{EMPLOYEE_ENDPOINT}/{employee_id}", json=update_data, headers=HEADERS)
+    assert response.status_code == 200
+    response_data = response.json()
+    
